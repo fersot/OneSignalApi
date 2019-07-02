@@ -19,7 +19,7 @@ class OneSignalApi
 
         $fields = array(
             'app_id' => $appid,
-            'included_segments' => $segments,
+            'included_segments' => ['TEST SEGMENT'],
             'contents' => $post->post_content,
             'headings' => $post->post_title
         );
@@ -116,12 +116,19 @@ class OneSignalApi
         delete_option($key);
     }
 
+    /**
+     * @return string
+     */
     public static function SetToHeader()
     {
         $html = '<link rel="manifest" href="/manifest.json">';
         return $html;
     }
 
+    /**
+     * @param $appId
+     * @return string
+     */
     public static function SetToFooter($appId)
     {
         $html = '<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
@@ -136,17 +143,21 @@ class OneSignalApi
         return $html;
     }
 
+    /**
+     *
+     */
     public static function FilesToRoot()
     {
-
+// files to copy
         $manifest = plugin_dir_path(__FILE__) . 'assets_to_root/manifest.json';
         $serviceworker = plugin_dir_path(__FILE__) . 'assets_to_root/OneSignalSDKWorker.js';
         $sdk = plugin_dir_path(__FILE__) . 'assets_to_root/OneSignalSDKUpdaterWorker.js';
-
+// destination
         $manifest_root = ABSPATH . '/manifest.json';
         $serviceworker_root = ABSPATH . '/OneSignalSDKWorker.js';
         $sdk_root = ABSPATH . '/OneSignalSDKUpdaterWorker.js';
 
+// action copy
         if (!copy($manifest, $manifest_root)) {
             echo "failed to copy $manifest to $manifest_root...\n";
         }
