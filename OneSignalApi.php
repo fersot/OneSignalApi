@@ -96,7 +96,7 @@ function Settings()
     <div class="container">
         <div class="jumbotron jumbotron-fluid" style="background: linear-gradient(to bottom right, #14d66f, #39bee3);">
             <div class="container">
-                <h1 class="display-4" style="color: white">One Signal API por <a href="https://www.gradiweb.com"
+                <h1 class="display-4" style="color: white">One Signal API hecho por <a href="https://www.gradiweb.com"
                                                                                  style="color: white" target="_blank">GradiWeb</a>
                 </h1>
                 <p class="lead" style="color: white">Plugin para el envio dinámico de notificaciones push mediante One
