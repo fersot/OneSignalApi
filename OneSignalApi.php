@@ -27,10 +27,9 @@ require_once plugin_dir_path(__FILE__) . 'includes/OneSignalApiActivator.php';
 
 add_action("admin_menu", "CreateMenu");
 add_action("admin_menu", "SaveSettings");
+add_action("admin_menu", "SaveLanguagesSettings");
 add_action("admin_menu", "SendMessageTest");
 add_action('admin_footer', 'MediaSelectorPrintScripts');
-add_action('draft_to_publish', 'CheckNewPost');
-add_action('transition_post_status', 'publish_post', 10, 3);
 register_activation_hook(__FILE__, 'ActivatePlugin');
 register_deactivation_hook(__FILE__, 'DeactivatePlugin');
 
@@ -59,11 +58,26 @@ function SaveSettings()
     }
 }
 
+function SaveLanguagesSettings()
+{
+    if (isset($_POST['language_settings'])) {
+        if (isset($GLOBALS["polylang"])) {
+            $arrayLanguages = $GLOBALS["polylang"]->model->get_languages_list();
+            foreach ($arrayLanguages as $language){
+                OneSignalApi::UpdateOption('onesignal_language_'.$language->slug, $_POST['poly_'.$language->slug]);
+            }
+        }else{
+           OneSignalApi::UpdateOption('default_onesignal_language', $_POST['poly_default']);
+        }
+
+        wp_redirect('/wp-admin/admin.php?page=one-signal-api');
+        exit;
+    }
+}
+
 function SendMessageTest()
 {
-    if (isset($_POST['send_test_push'])) {
-        OneSignalApi::SendMessageBySegment(['TEST SEGMENT'], OneSignalApi::GetOption('onesignal_app_id'), OneSignalApi::GetOption('onesignal_api_key'));
-    }
+
 }
 
 function Settings()
@@ -129,9 +143,37 @@ function Settings()
                     </div>
                     <div class="card-body">
                         <form method="post">
-                            <div class="col-md-12">
-                                <div class="row">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <?php if (isset($GLOBALS["polylang"])): ?>
+                                        <ul>
+                                            <?php foreach ($arrayLanguages as $language): ?>
+                                                <li data-value="<?php echo $language->locale ?>"><?php echo $language->name ?>
 
+                                                    <input
+                                                            type="text" class="form-control"
+                                                            placeholder="Nombre del Segmento"
+                                                            name="poly_<?php echo $language->slug ?>"
+                                                            value="<?php echo OneSignalApi::GetOption('onesignal_language_'.$language->slug) ?>"
+                                                    >
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php else: ?>
+                                        <label for="default_one_signal_language">Default Segment</label>
+                                        <input
+                                                type="text" class="form-control"
+                                                placeholder="Nombre del Segmento"
+                                                name="poly_default"
+                                                value="<?php echo OneSignalApi::GetOption('default_onesignal_language') ?>"
+                                        >
+                                        <br>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-12">
+                                    <input type="submit" name="language_settings" value="Guardar Cambios"
+                                           style="float: right"
+                                           class="button-primary">
                                 </div>
                             </div>
                         </form>
@@ -189,21 +231,6 @@ function MediaSelectorPrintScripts()
     </script><?php
 }
 
-function CheckNewPost()
-{
-    $to = "hemberfer@gmail.com";
-    $subject = "Hi!";
-    $body = "Hi,\n\nHow are you?";
-    mail($to, $subject, $body);
-}
-
-function publish_post($new_status, $old_status, $post_ID)
-{
-    $post = get_post($post_ID);
-    if ('publish' === $new_status && 'publish' !== $old_status && $post->post_type === 'post') {
-        OneSignalApi::SendMessage(OneSignalApi::GetOption('onesignal_app_id'), OneSignalApi::GetOption('onesignal_api_key'), $post);
-    }
-}
 
 function InsertHead()
 {
@@ -224,3 +251,12 @@ function InsertFiles()
 add_action('init', 'InsertFiles');
 add_action('wp_head', 'InsertHead');
 add_action('wp_footer', 'InsertFooter');
+
+add_action('transition_post_status', 'send_new_post', 10, 3);
+
+// Listen for publishing of a new post
+function send_new_post($new_status, $old_status, $post) {
+    if('publish' === $new_status && 'publish' !== $old_status && $post->post_type === 'post') {
+            OneSignalApi::SendMessage(OneSignalApi::GetOption('onesignal_app_id'), OneSignalApi::GetOption('onesignal_api_key'), $post);
+    }
+}

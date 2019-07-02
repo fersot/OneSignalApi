@@ -16,12 +16,27 @@ class OneSignalApi
      */
     public static function SendMessage($appid, $apikey, $post)
     {
-
+        $segments = [];
+        if (isset($GLOBALS["polylang"])) {
+            $language = pll_get_post_language($post->ID);
+            $segments[] = OneSignalApi::GetOption('onesignal_language_' . $language);
+        } else {
+            $segments[] = OneSignalApi::GetOption('default_onesignal_language');
+        }
+        $content = [
+            'en' => wp_strip_all_tags($post->post_content)
+        ];
+        $heading = [
+            'en' => $post->post_title
+        ];
+        $featured_img = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ));
         $fields = array(
             'app_id' => $appid,
-            'included_segments' => ['TEST SEGMENT'],
-            'contents' => $post->post_content,
-            'headings' => $post->post_title
+            'included_segments' => $segments,
+            'contents' => $content,
+            'headings' => $heading,
+            'url' => get_permalink($post->ID),
+            'chrome_web_image' => $featured_img[0],
         );
         $fields = json_encode($fields);
         return self::Curl($fields, $apikey, self::ApiNotification);
@@ -104,6 +119,11 @@ class OneSignalApi
      */
     public static function UpdateOption($key, $value)
     {
+        $option_data = get_option($key);
+
+        if (!$option_data) {
+            add_option($key, $value);
+        }
         update_option($key, $value);
     }
 
@@ -168,5 +188,6 @@ class OneSignalApi
             echo "failed to copy $sdk to $sdk_root...\n";
         }
     }
+
 }
 
