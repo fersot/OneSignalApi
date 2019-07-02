@@ -7,6 +7,7 @@ class OneSignalApiActivator
     public static function activate()
     {
         self::addoptions();
+
     }
 
     static function addoptions()
@@ -14,4 +15,5 @@ class OneSignalApiActivator
         OneSignalApi::AddOption('onesignal_app_id','');
         OneSignalApi::AddOption('onesignal_api_key','');
     }
+
 }

@@ -9,21 +9,19 @@ class OneSignalApi
 
     /**
      * Send a Notification Push By Segment
-     * @param $segments
      * @param $appid
      * @param $apikey
-     * @param null $post
+     * @param $post
      * @return bool|string
      */
-    public static function SendMessageBySegment($segments, $appid, $apikey, $post = null)
+    public static function SendMessage($appid, $apikey, $post)
     {
-        $content = array(
-            "en" => 'In Develop message'
-        );
+
         $fields = array(
             'app_id' => $appid,
             'included_segments' => $segments,
-            'contents' => $content
+            'contents' => $post->post_content,
+            'headings' => $post->post_title
         );
         $fields = json_encode($fields);
         return self::Curl($fields, $apikey, self::ApiNotification);
@@ -94,8 +92,9 @@ class OneSignalApi
      * @param $key
      * @return string
      */
-    public static function GetOption($key){
-      return get_option($key);
+    public static function GetOption($key)
+    {
+        return get_option($key);
     }
 
     /**
@@ -112,8 +111,51 @@ class OneSignalApi
      * Remove a Option
      * @param $key
      */
-    public static function DeleteOption($key){
+    public static function DeleteOption($key)
+    {
         delete_option($key);
+    }
+
+    public static function SetToHeader()
+    {
+        $html = '<link rel="manifest" href="/manifest.json">';
+        return $html;
+    }
+
+    public static function SetToFooter($appId)
+    {
+        $html = '<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+                <script>
+                    var OneSignal = window.OneSignal || [];
+                    OneSignal.push(function() {
+                        OneSignal.init({
+                            appId: "' . $appId . '",
+                        });
+                    });
+                </script>';
+        return $html;
+    }
+
+    public static function FilesToRoot()
+    {
+
+        $manifest = plugin_dir_path(__FILE__) . 'assets_to_root/manifest.json';
+        $serviceworker = plugin_dir_path(__FILE__) . 'assets_to_root/OneSignalSDKWorker.js';
+        $sdk = plugin_dir_path(__FILE__) . 'assets_to_root/OneSignalSDKUpdaterWorker.js';
+
+        $manifest_root = ABSPATH . '/manifest.json';
+        $serviceworker_root = ABSPATH . '/OneSignalSDKWorker.js';
+        $sdk_root = ABSPATH . '/OneSignalSDKUpdaterWorker.js';
+
+        if (!copy($manifest, $manifest_root)) {
+            echo "failed to copy $manifest to $manifest_root...\n";
+        }
+        if (!copy($serviceworker, $serviceworker_root)) {
+            echo "failed to copy $serviceworker to $serviceworker_root...\n";
+        }
+        if (!copy($sdk, $sdk_root)) {
+            echo "failed to copy $sdk to $sdk_root...\n";
+        }
     }
 }
 
