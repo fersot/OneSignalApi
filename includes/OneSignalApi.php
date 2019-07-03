@@ -12,20 +12,21 @@ class OneSignalApi
      * @param $appid
      * @param $apikey
      * @param $post
-     * @return bool|string
+     * @return array
      */
     public static function SendMessage($appid, $apikey, $post)
     {
         $segments = [];
         if (isset($GLOBALS["polylang"])) {
             $language = pll_get_post_language($post->ID);
-            mail('hemberfer@gmail.com','test',json_encode($language));
             $segments[] = OneSignalApi::GetOption('onesignal_language_' . $language);
         } else {
             $segments[] = OneSignalApi::GetOption('default_onesignal_language');
         }
+        $message = wp_trim_words(wp_strip_all_tags($post->post_content),15);
+        $message = str_replace('&hellip;','...',$message);
         $content = [
-            'en' => wp_strip_all_tags($post->post_content)
+            'en' => $message
         ];
         $heading = [
             'en' => $post->post_title
@@ -40,7 +41,12 @@ class OneSignalApi
             'chrome_web_image' => $featured_img[0],
         );
         $fields = json_encode($fields);
-        return self::Curl($fields, $apikey, self::ApiNotification);
+        $curl = self::Curl($fields, $apikey, self::ApiNotification);
+        $response = [
+            'fields' => $fields,
+            'response' => $curl,
+        ];
+        return $response;
     }
 
     /**

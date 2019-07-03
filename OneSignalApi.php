@@ -257,6 +257,6 @@ add_action('transition_post_status', 'send_new_post', 10, 3);
 // Listen for publishing of a new post
 function send_new_post($new_status, $old_status, $post) {
     if('publish' === $new_status && 'publish' !== $old_status && $post->post_type === 'post') {
-            OneSignalApi::SendMessage(OneSignalApi::GetOption('onesignal_app_id'), OneSignalApi::GetOption('onesignal_api_key'), $post);
+           OneSignalApi::SendMessage(OneSignalApi::GetOption('onesignal_app_id'), OneSignalApi::GetOption('onesignal_api_key'), $post);
     }
 }
