@@ -19,6 +19,7 @@ class OneSignalApi
         $segments = [];
         if (isset($GLOBALS["polylang"])) {
             $language = pll_get_post_language($post->ID);
+            mail('hemberfer@gmail.com','test',json_encode($language));
             $segments[] = OneSignalApi::GetOption('onesignal_language_' . $language);
         } else {
             $segments[] = OneSignalApi::GetOption('default_onesignal_language');
