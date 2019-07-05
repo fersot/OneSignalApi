@@ -32,7 +32,7 @@ add_action("admin_menu", "SendMessageTest");
 add_action('admin_footer', 'MediaSelectorPrintScripts');
 register_activation_hook(__FILE__, 'ActivatePlugin');
 register_deactivation_hook(__FILE__, 'DeactivatePlugin');
-add_action('wp_enqueue_scripts','OneSignalApiScripts');
+//add_action('wp_enqueue_scripts','OneSignalApiScripts');
 
 function OneSignalApiScripts() {
     wp_enqueue_script( 'one-signal-js', plugins_url( '/js/OneSignalApi.js', __FILE__ ));
