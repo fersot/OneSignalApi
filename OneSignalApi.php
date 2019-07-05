@@ -32,16 +32,11 @@ add_action("admin_menu", "SendMessageTest");
 add_action('admin_footer', 'MediaSelectorPrintScripts');
 register_activation_hook(__FILE__, 'ActivatePlugin');
 register_deactivation_hook(__FILE__, 'DeactivatePlugin');
-//add_action('wp_enqueue_scripts','OneSignalApiScripts');
 
-function OneSignalApiScripts() {
-    wp_enqueue_script( 'one-signal-js', plugins_url( '/js/OneSignalApi.js', __FILE__ ));
-}
 function ActivatePlugin()
 {
     OneSignalApiActivator::activate();
 }
-
 function DeactivatePlugin()
 {
     OneSignalApiDeactivator::deactivate();
@@ -256,6 +251,10 @@ add_action('init', 'InsertFiles');
 add_action('wp_head', 'InsertHead');
 add_action('wp_footer', 'InsertFooter');
 
+add_action('wp_enqueue_scripts','OneSignalApiScripts');
+function OneSignalApiScripts() {
+    wp_enqueue_script( 'one-signal-js', plugins_url( '/js/OneSignalApi.js', __FILE__ ));
+}
 add_action('transition_post_status', 'send_new_post', 10, 3);
 
 // Listen for publishing of a new post
